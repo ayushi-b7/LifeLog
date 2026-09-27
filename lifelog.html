@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeLog</title>
+<style>
+:root{
+  --bg:#faf8f5; --card:#ffffff; --text:#2a2420; --muted:#7a7168;
+  --line:#e8e1d8; --accent:#a8452f; --accent2:#3f6e5c; --track:#eee6dc; --gold:#b3892c;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#1c1815; --card:#26221e; --text:#ede6dd; --muted:#a89e93; --line:#3a342e; --accent:#e08668; --accent2:#7fb89f; --track:#332e29; --gold:#d9b35c; }
+}
+:root[data-theme="dark"]{ --bg:#1c1815; --card:#26221e; --text:#ede6dd; --muted:#a89e93; --line:#3a342e; --accent:#e08668; --accent2:#7fb89f; --track:#332e29; --gold:#d9b35c; }
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:16px 12px 70px;height:100%;}
+h1{font-size:1.3rem;margin:2px 0;letter-spacing:.3px;}
+.sub{color:var(--muted);font-size:.8rem;margin-bottom:14px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+h2{font-size:.95rem;margin:0 0 8px;}
+.bar{height:9px;border-radius:6px;background:var(--track);overflow:hidden;margin:5px 0 2px;}
+.bar>div{height:100%;background:var(--accent2);transition:width .3s;}
+.bar.warn>div{background:var(--accent);}
+.pct{font-size:.75rem;color:var(--muted);}
+.task{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:.9rem;}
+.task:last-child{border-bottom:none;}
+.task input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent2);}
+.task.done span{text-decoration:line-through;color:var(--muted);}
+.task.overdue span{color:var(--accent);}
+.task .due{font-size:.68rem;color:var(--muted);margin-left:4px;}
+.task button{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;}
+.addrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.addrow input[type=text]{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:.88rem;}
+.addrow input[type=date]{padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:.8rem;}
+.addrow button{padding:8px 12px;border-radius:8px;border:none;background:var(--accent2);color:#fff;font-size:.85rem;cursor:pointer;}
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;}
+.tab{padding:7px 13px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:.82rem;cursor:pointer;white-space:nowrap;}
+.tab.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.navtabs{display:flex;gap:6px;margin-bottom:14px;}
+.navtabs .tab{flex:1;text-align:center;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.metric{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;}
+.metric label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;}
+.metric input{width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:.92rem;}
+.summary{display:flex;gap:8px;flex-wrap:wrap;}
+.summary .chip{flex:1;min-width:90px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px;text-align:center;}
+.summary .chip .n{font-size:1.2rem;font-weight:600;}
+.summary .chip .l{font-size:.65rem;color:var(--muted);}
+.note{font-size:.75rem;color:var(--muted);margin-top:8px;line-height:1.4;}
+.logbtn{width:100%;margin-top:10px;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:.88rem;cursor:pointer;}
+.instant{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:.85rem;}
+.instant:last-child{border-bottom:none;}
+.instant .emo{font-size:1.3rem;}
+.instant .date{font-size:.68rem;color:var(--muted);display:block;}
+.emojirow{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.emojirow button{font-size:1.3rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;cursor:pointer;}
+.emojirow button.sel{border-color:var(--accent2);background:var(--track);}
+.lbrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.88rem;}
+.lbrow:last-child{border-bottom:none;}
+.lbrow .rank{width:22px;font-weight:600;color:var(--muted);}
+.lbrow.me{background:var(--track);border-radius:8px;padding-left:6px;}
+.lbrow .pts{margin-left:auto;font-weight:600;color:var(--gold);}
+</style>
+</head>
+<body>
+<h1>🪔 LifeLog</h1>
+<div class="sub">Study + health tracker</div>
+<div id="app"></div>
+
+<script>
+const DEFAULT_STATE = {"activeView":"today","activeCourse":"sxc","statsRange":"week","courses":{"sxc":{"name":"SXC B.Com","tasks":[{"id":"t1","text":"Complete Sem 1 assignment","done":false,"dueDate":null}]},"bits":{"name":"BITS CS","tasks":[{"id":"t2","text":"Finish current module quiz","done":false,"dueDate":null}]},"cfa":{"name":"CFA","tasks":[{"id":"t3","text":"Read Level 1 chapter","done":false,"dueDate":null}]}},"health":{"today":{"sleep":0,"screen":0,"water":0,"exercise":0}},"history":[],"instants":[]};
+let STATE = JSON.parse(localStorage.getItem('lifelog_state') || 'null') || DEFAULT_STATE;
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function escapeHtml(s){ const d=document.createElement('div'); d.innerText=s; return d.innerHTML; }
+
+
+function pct(course){
+  const t = course.tasks;
+  if(!t.length) return 0;
+  return Math.round((t.filter(x=>x.done).length / t.length) * 100);
+}
+function healthScore(h){
+  let s = 0;
+  s += Math.min(h.sleep/7,1)*30;
+  s += Math.min(h.water/8,1)*25;
+  s += Math.min(h.exercise/20,1)*25;
+  s += Math.max(0,1-h.screen/10)*20;
+  return Math.round(s);
+}
+function computeToday(){
+  const t = todayStr();
+  let pts=0, done=0, overdue=0;
+  Object.values(STATE.courses).forEach(c=>{
+    c.tasks.forEach(task=>{
+      if(task.done){ pts+=10; done++; }
+      else if(task.dueDate && task.dueDate < t){ pts-=5; overdue++; }
+    });
+  });
+  return {points:pts, done, overdue};
+}
+function rangeStart(range){
+  const d = new Date();
+  if(range==='week') d.setDate(d.getDate()-6);
+  else if(range==='month') d.setDate(d.getDate()-29);
+  else d.setFullYear(d.getFullYear()-1);
+  return d.toISOString().slice(0,10);
+}
+function aggregate(range){
+  const start = rangeStart(range);
+  const entries = STATE.history.filter(h=>h.date>=start);
+  const pts = entries.reduce((a,e)=>a+e.points,0);
+  const done = entries.reduce((a,e)=>a+e.tasksDone,0);
+  const overdue = entries.reduce((a,e)=>a+e.tasksOverdue,0);
+  const avgHealth = entries.length ? Math.round(entries.reduce((a,e)=>a+e.healthScore,0)/entries.length) : 0;
+  return {pts, done, overdue, avgHealth, days:entries.length};
+}
+
+function render(){
+  const app = document.getElementById('app');
+  const view = STATE.activeView || 'today';
+  let html = '<div class="navtabs">';
+  [['today','Today'],['stats','Stats'],['instants','Instants'],['leaderboard','Leaderboard']].forEach(([k,l])=>{
+    html += '<div class="tab '+(view===k?'active':'')+'" onclick="setView(\''+k+'\')">'+l+'</div>';
+  });
+  html += '</div>';
+
+  if(view==='today') html += renderToday();
+  else if(view==='stats') html += renderStats();
+  else if(view==='instants') html += renderInstants();
+  else html += renderLeaderboard();
+
+  app.innerHTML = html;
+}
+
+function renderToday(){
+  const courses = STATE.courses;
+  const totalTasks = Object.values(courses).reduce((a,c)=>a+c.tasks.length,0);
+  const doneTasks = Object.values(courses).reduce((a,c)=>a+c.tasks.filter(t=>t.done).length,0);
+  const overallPct = totalTasks ? Math.round(doneTasks/totalTasks*100) : 0;
+  const today = computeToday();
+  const hs = healthScore(STATE.health.today);
+  const active = STATE.activeCourse;
+  const c = courses[active];
+  const p = pct(c);
+  const t = todayStr();
+
+  let h = '<div class="card"><h2>Today</h2><div class="summary">'
+    + '<div class="chip"><div class="n">'+overallPct+'%</div><div class="l">Progress</div></div>'
+    + '<div class="chip"><div class="n">'+today.points+'</div><div class="l">Points today</div></div>'
+    + '<div class="chip"><div class="n">'+hs+'</div><div class="l">Health score</div></div>'
+    + '</div></div>';
+
+  h += '<div class="card"><h2>Study checklist</h2><div class="tabs">';
+  Object.keys(courses).forEach(k=>{
+    h += '<div class="tab '+(k===active?'active':'')+'" onclick="switchCourse(\''+k+'\')">'+courses[k].name+'</div>';
+  });
+  h += '</div>';
+  h += '<div class="bar'+(p<40?' warn':'')+'"><div style="width:'+p+'%"></div></div><div class="pct">'+p+'% complete · '+c.tasks.filter(x=>x.done).length+'/'+c.tasks.length+' tasks</div>';
+  h += '<div style="margin-top:8px">';
+  c.tasks.forEach(task=>{
+    const overdue = !task.done && task.dueDate && task.dueDate < t;
+    h += '<div class="task '+(task.done?'done':'')+(overdue?' overdue':'')+'">'
+      + '<input type="checkbox" '+(task.done?'checked':'')+' onchange="toggleTask(\''+active+'\',\''+task.id+'\')">'
+      + '<span>'+escapeHtml(task.text)+(task.dueDate?'<span class="due">('+ (overdue?'overdue ':'due ') +task.dueDate+')</span>':'')+'</span>'
+      + '<button onclick="removeTask(\''+active+'\',\''+task.id+'\')">✕</button>'
+      + '</div>';
+  });
+  h += '</div>';
+  h += '<div class="addrow"><input type="text" id="newtask" placeholder="Add a task..."><input type="date" id="newdue"><button onclick="addTask()">Add</button></div>';
+  h += '</div>';
+
+  const hl = STATE.health.today;
+  h += '<div class="card"><h2>Health log</h2>';
+  h += '<div class="bar'+(hs<50?' warn':'')+'"><div style="width:'+hs+'%"></div></div><div class="pct">'+hs+'/100</div>';
+  h += '<div class="grid2" style="margin-top:8px">'
+    + '<div class="metric"><label>Sleep (hrs)</label><input type="number" step="0.5" min="0" max="14" value="'+hl.sleep+'" onchange="setHealth(\'sleep\',this.value)"></div>'
+    + '<div class="metric"><label>Screen (hrs)</label><input type="number" step="0.5" min="0" max="20" value="'+hl.screen+'" onchange="setHealth(\'screen\',this.value)"></div>'
+    + '<div class="metric"><label>Water (glasses)</label><input type="number" min="0" max="20" value="'+hl.water+'" onchange="setHealth(\'water\',this.value)"></div>'
+    + '<div class="metric"><label>Exercise (mins)</label><input type="number" min="0" max="300" value="'+hl.exercise+'" onchange="setHealth(\'exercise\',this.value)"></div>'
+    + '</div>';
+  h += '<button class="logbtn" onclick="logToday()">Log today\'s stats</button>';
+  h += '<div class="note">Tap "Log today" once at day\'s end to save today into your weekly/monthly/yearly stats. Points: +10 done, -5 overdue, 0 otherwise.</div>';
+  h += '</div>';
+  return h;
+}
+
+function renderStats(){
+  const range = STATE.statsRange||'week';
+  const a = aggregate(range);
+  let h = '<div class="card"><h2>Stats</h2><div class="tabs">';
+  [['week','Weekly'],['month','Monthly'],['year','Yearly']].forEach(([k,l])=>{
+    h += '<div class="tab '+(range===k?'active':'')+'" onclick="setStatsRange(\''+k+'\')">'+l+'</div>';
+  });
+  h += '</div>';
+  h += '<div class="summary">'
+    + '<div class="chip"><div class="n">'+a.pts+'</div><div class="l">Total points</div></div>'
+    + '<div class="chip"><div class="n">'+a.done+'</div><div class="l">Tasks done</div></div>'
+    + '<div class="chip"><div class="n">'+a.overdue+'</div><div class="l">Overdue</div></div>'
+    + '<div class="chip"><div class="n">'+a.avgHealth+'</div><div class="l">Avg health</div></div>'
+    + '</div>';
+  h += '<div class="note">Based on '+a.days+' logged day(s) in this range. Logged days come from the "Log today\'s stats" button on the Today tab.</div>';
+  h += '</div>';
+  return h;
+}
+
+function renderInstants(){
+  const emojis = ['🌤️','🌧️','🔥','😴','📚','🎧','☕','🎉','😩','🌙'];
+  const sel = STATE._selEmoji || emojis[0];
+  let h = '<div class="card"><h2>Instants — today\'s vibe</h2>';
+  h += '<div class="emojirow">';
+  emojis.forEach(e=>{ h += '<button class="'+(sel===e?'sel':'')+'" onclick="selectEmoji(\''+e+'\')">'+e+'</button>'; });
+  h += '</div>';
+  h += '<div class="addrow"><input type="text" id="instantnote" placeholder="One line about today..."><button onclick="addInstant()">Save</button></div>';
+  h += '</div><div class="card"><h2>Recent</h2>';
+  const list = [...STATE.instants].reverse().slice(0,20);
+  if(!list.length) h += '<div class="note">No instants logged yet.</div>';
+  list.forEach(i=>{
+    h += '<div class="instant"><span class="emo">'+i.emoji+'</span><div><span class="date">'+i.date+'</span>'+escapeHtml(i.note)+'</div></div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function renderLeaderboard(){
+  let h = '<div class="card"><h2>Weekly leaderboard</h2>';
+  h += '<div class="note">This simple version stores everything only in your own browser, so it can\'t see friends\' scores automatically. To compare, share your weekly points from the Stats tab manually (screenshot or message it) until a shared online version is added.</div>';
+  const a = aggregate('week');
+  h += '<div class="summary" style="margin-top:8px"><div class="chip"><div class="n">'+a.pts+'</div><div class="l">Your points this week</div></div></div>';
+  h += '</div>';
+  return h;
+}
+
+function setView(v){ STATE.activeView=v; render(); save(); }
+function switchCourse(k){ STATE.activeCourse=k; render(); save(); }
+function setStatsRange(r){ STATE.statsRange=r; render(); save(); }
+function selectEmoji(e){ STATE._selEmoji=e; render(); }
+
+function toggleTask(course,id){
+  const t = STATE.courses[course].tasks.find(x=>x.id===id);
+  if(t) t.done = !t.done;
+  render(); save();
+}
+function removeTask(course,id){
+  STATE.courses[course].tasks = STATE.courses[course].tasks.filter(x=>x.id!==id);
+  render(); save();
+}
+function addTask(){
+  const input = document.getElementById('newtask');
+  const due = document.getElementById('newdue');
+  const val = input.value.trim();
+  if(!val) return;
+  STATE.courses[STATE.activeCourse].tasks.push({id:uid(), text:val, done:false, dueDate:due.value||null});
+  render(); save();
+}
+function setHealth(field,val){ STATE.health.today[field]=Number(val)||0; render(); save(); }
+
+function logToday(){
+  const t = todayStr();
+  const today = computeToday();
+  const hs = healthScore(STATE.health.today);
+  const entry = {date:t, points:today.points, tasksDone:today.done, tasksOverdue:today.overdue, healthScore:hs};
+  STATE.history = STATE.history.filter(e=>e.date!==t);
+  STATE.history.push(entry);
+  if(STATE.history.length>400) STATE.history = STATE.history.slice(-400);
+  render(); save();
+}
+
+function addInstant(){
+  const note = document.getElementById('instantnote');
+  const val = note.value.trim();
+  if(!val) return;
+  STATE.instants.push({date:todayStr(), emoji:STATE._selEmoji||'🌤️', note:val});
+  render(); save();
+}
+
+
+function save(){
+  localStorage.setItem('lifelog_state', JSON.stringify(STATE));
+}
+
+render();
+</script>
+</body>
+</html>
