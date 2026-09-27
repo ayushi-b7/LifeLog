@@ -242,6 +242,25 @@ function renderLeaderboard(){
 
 function setView(v){ STATE.activeView=v; render(); save(); }
 function switchCourse(k){ STATE.activeCourse=k; render(); save(); }
+function switchCourse(k){ STATE.activeCourse=k; render(); save(); }
+function addCourse(){
+  const name = prompt('Name of new course/subject:');
+  if(!name || !name.trim()) return;
+  const key = 'c'+uid();
+  STATE.courses[key] = {name:name.trim(), tasks:[]};
+  STATE.activeCourse = key;
+  render(); save();
+}
+function deleteCourse(k){
+  const name = STATE.courses[k] ? STATE.courses[k].name : 'this course';
+  if(!confirm('Delete "'+name+'" and all its tasks? This cannot be undone.')) return;
+  delete STATE.courses[k];
+  const remaining = Object.keys(STATE.courses);
+  STATE.activeCourse = remaining.length ? remaining[0] : null;
+  render(); save();
+}
+function setStatsRange(r){ STATE.statsRange=r; render(); save(); }
+  
 function setStatsRange(r){ STATE.statsRange=r; render(); save(); }
 function selectEmoji(e){ STATE._selEmoji=e; render(); }
 
