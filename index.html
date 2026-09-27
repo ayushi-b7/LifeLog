@@ -145,7 +145,7 @@ function renderToday(){
   const today = computeToday();
   const hs = healthScore(STATE.health.today);
   const active = STATE.activeCourse;
-  const c = courses[active];
+  const c = courses[active] || {tasks:[]};
   const p = pct(c);
   const t = todayStr();
 
@@ -157,9 +157,14 @@ function renderToday(){
 
   h += '<div class="card"><h2>Study checklist</h2><div class="tabs">';
   Object.keys(courses).forEach(k=>{
-    h += '<div class="tab '+(k===active?'active':'')+'" onclick="switchCourse(\''+k+'\')">'+courses[k].name+'</div>';
+    h += '<div class="tab '+(k===active?'active':'')+'" onclick="switchCourse(\''+k+'\')">'+escapeHtml(courses[k].name)
+       + ' <span onclick="event.stopPropagation();deleteCourse(\''+k+'\')" style="opacity:.6;margin-left:4px;">✕</span></div>';
   });
+  h += '<div class="tab" onclick="addCourse()" style="border-style:dashed;">+ Add course</div>';
   h += '</div>';
+  if(!Object.keys(courses).length){
+    return h + '<div class="note">No courses yet. Tap "+ Add course" above to create one.</div></div>';
+  }
   h += '<div class="bar'+(p<40?' warn':'')+'"><div style="width:'+p+'%"></div></div><div class="pct">'+p+'% complete · '+c.tasks.filter(x=>x.done).length+'/'+c.tasks.length+' tasks</div>';
   h += '<div style="margin-top:8px">';
   c.tasks.forEach(task=>{
